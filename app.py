@@ -28,14 +28,14 @@ REPOSITORY: https://github.com/noushks/robo_finance_project
 DISCLAIMER: Educational project only, not financial advice.
 """
 
-# %% 1. Setup ------------------------------------------------------------------------
+# %% 1. Setup 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-# %% 2. Assumptions (edit these to change the model) ----------------------------------
-INFLATION = 0.025        # annual inflation
+# %% 2. Assumptions
+INFLATION = 0.037       # annual inflation of 3.7% in the US
 INCOME_GROWTH = 0.03     # annual nominal raise
 SAFE_RATE = 0.035        # discount rate for money set aside for near-term goals
 EARMARK_YEARS = 5        # goals this close get their own safe bucket
@@ -65,7 +65,7 @@ P = {
 }
 ASSET_COLORS = [P["sky"], P["lavender"], P["mint"], P["peach"]]
 
-# %% 3. Risk quiz ----------------------------------------------------------------------
+# 3. Risk quiz
 QUIZ = [
     ("If your investments fell 20% in one month, you would…",
      [("Sell everything", 1), ("Sell some", 2), ("Hold and wait", 3), ("Buy more", 4)]),
@@ -95,7 +95,7 @@ def risk_profile(points):
     return score, label, tilt
 
 
-# %% 4. Allocation rules -------------------------------------------------------------
+# Allocation rules
 def mix(equity, cash):
     """Turn a stock share and a cash share into weights for the 4 asset classes."""
     equity = float(np.clip(equity, 0, 1))
@@ -115,7 +115,7 @@ def goal_mix(years_away):
     return mix(0.0, 0.60) if years_away <= 2 else mix(0.25, 0.15)
 
 
-# %% 5. Simulation ---------------------------------------------------------------------
+# Simulation
 def simulate(p, deterministic=False, n_sims=N_SIMS, seed=7):
     """Year-by-year projection. Money flows in at the start of each year, then grows."""
     _, _, tilt = risk_profile(p["risk"])
@@ -200,7 +200,7 @@ def current_buckets(p):
     return rows
 
 
-# %% 6. Helpers for display ------------------------------------------------------------
+# Helpers for display 
 def money(x):
     x = float(x)
     if abs(x) >= 1e6:
@@ -330,8 +330,8 @@ def advice(p, sim, buckets, label):
 
 
 
-# %% 7. The Streamlit app -----------------------------------------------------------------
-st.set_page_config(page_title="RoboPlanner", page_icon="🌸", layout="wide")
+# The Streamlit app
+st.set_page_config(page_title="RoboPlanner", layout="wide")
 
 st.markdown(f"""
 <style>
@@ -397,7 +397,7 @@ st.markdown("<div class='rp-banner'><h1>🌸 RoboPlanner</h1>"
             "<p>A friendly robo-advisor: answer a few questions and get a personalised investment plan.</p>"
             "</div>", unsafe_allow_html=True)
 
-st.markdown("<div class='rp-note'>Try a sample case from the assignment, or enter your own details. "
+st.markdown("<div class='rp-note'>Try a sample case, or enter your own details in each of the tabs. "
             "The plan updates as you type.</div>", unsafe_allow_html=True)
 b1, b2, b3, b4 = st.columns(4)
 b1.button("🏠 Case A: 30-yr-old", on_click=apply_values, args=(CASES["A"],), width="stretch")
@@ -406,7 +406,7 @@ b3.button("🌴 Case C: 70-yr-old", on_click=apply_values, args=(CASES["C"],), w
 b4.button("↺ Start fresh", on_click=apply_values, args=(DEFAULTS,), width="stretch")
 
 # ---- Inputs ----
-t1, t2, t3, t4 = st.tabs(["👤 About you", "💰 Your money", "🎯 Goals", "🧭 Risk quiz"])
+t1, t2, t3, t4 = st.tabs([" About you", "Your money", "Goals", "Risk quiz"])
 with t1:
     c1, c2 = st.columns(2)
     c1.text_input("Name (optional)", key="name", placeholder="e.g. Alex")
@@ -424,14 +424,14 @@ with t2:
     c2.slider("Savings rate later (%)", 0, 60, key="save_later")
     c2.slider("…switching at age", 18, 85, key="switch")
 with t3:
-    st.caption("Tick the goals that apply. Amounts are in today's dollars.")
+    st.caption("Tick the goals that apply. Amounts are in US dollars.")
     for i in range(3):
         c0, c1, c2, c3 = st.columns([0.6, 2.2, 1.6, 2.2])
         c0.checkbox("On", key=f"g_on{i}")
         c1.text_input("Goal", key=f"g_nm{i}")
         c2.number_input("Amount ($)", 0, 50_000_000, step=5_000, key=f"g_amt{i}")
         c3.slider("Years from now", 1, 40, key=f"g_yrs{i}")
-    st.number_input("Leave to heirs / bequest (today's $)", 0, 100_000_000, step=50_000, key="bequest")
+    st.number_input("Leave to heirs/bequest (today's $)", 0, 100_000_000, step=50_000, key="bequest")
 with t4:
     st.caption("Four quick questions to gauge how much ups and downs you can handle.")
     for i, (q, opts) in enumerate(QUIZ):
@@ -503,20 +503,20 @@ with right:
 st.plotly_chart(fan_chart(sim, det, p), theme=None)
 st.plotly_chart(glide_chart(det), theme=None)
 
-st.markdown("#### 💡 What RoboPlanner recommends")
+st.markdown("#### What RoboPlanner recommends")
 st.markdown(f"<div class='rp-advice'><ul>{advice(p, sim, buckets, label)}</ul></div>",
             unsafe_allow_html=True)
 
 st.write("")
-with st.expander("📐 Assumptions"):
+with st.expander("Assumptions"):
     st.markdown(f"""
 - Expected returns (nominal): stocks 7%, bonds 4%, cash 3%; volatility 16–17% / 6% / 1%.
-- Inflation {INFLATION*100:.1f}%, raises {INCOME_GROWTH*100:.0f}%/yr. Charts are in today's dollars.
-- Long-term mix = 110 − age in stocks, ± up to 18 points from the risk quiz (bounds 20–95%).
+- Inflation {INFLATION*100:.1f}%, raises {INCOME_GROWTH*100:.0f}%/yr. Charts are in today's US dollars.
+- Long-term mix = 110 − age in stocks, ± up to 18 points from the risk quiz (bounds 20%–95%).
 - Goals within {EARMARK_YEARS} years are held in cash and short-term bonds.
 - {N_SIMS:,} Monte Carlo scenarios with correlated annual returns. Before-tax, no fees.
 """)
-with st.expander("🚧 Not included yet (ideas for version 2)"):
+with st.expander("Ideas I would like to include for the future (potential V2)"):
     st.markdown("""
 - Life expectancy tables by sex and health, instead of a single "plan until" age.
 - Marital status, a spouse's income and benefits, and dependents.
