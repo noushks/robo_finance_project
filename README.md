@@ -1,6 +1,6 @@
-# 🌸 RoboPlanner: a simple robo financial advisor
+# RoboPlanner: a simple robo financial advisor
 
-FINC6580 Fintech (Fall 2026), Week 3 assignment: *Build your own robo*.
+
 Repository: https://github.com/noushks/robo_finance_project
 
 RoboPlanner asks for your age, savings, income, savings rates, goals and risk tolerance, then recommends
