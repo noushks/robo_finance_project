@@ -29,9 +29,5 @@ The AI prompts used to build the app are logged at the top of `app.py` and `cola
     pip install -r requirements.txt
     streamlit run app.py
 
-**Online (free):** go to https://share.streamlit.io, sign in with GitHub, click **Create app**, choose
-`noushks/robo_finance_project`, branch `main`, main file `app.py`, then **Deploy**.
-
-**In Google Colab:** upload `colab/robo_advisor_colab.ipynb` and choose *Runtime → Run all*.
 
 *Educational project only, not financial advice.*
